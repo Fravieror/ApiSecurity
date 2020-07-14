@@ -3,7 +3,7 @@ package server
 import (
 	"net/http"
 
-	tokenInfrastructure "apiSecurity/token/infrastructure"
+	"apiSecurity/token/infrastructure"
 
 	"github.com/gorilla/mux"
 )
@@ -20,7 +20,8 @@ func New() Server {
 	a := &api{}
 
 	r := mux.NewRouter()
-	r.HandleFunc("/token", tokenInfrastructure.GenerateToken).Methods(http.MethodPost)
+	r.HandleFunc("/token", infrastructure.GenerateToken).Methods(http.MethodPost)
+	r.HandleFunc("/verify", infrastructure.VerifyToken).Methods(http.MethodPost)
 	// r.HandleFunc("/ping", infrastructure.Ping).Methods(http.MethodGet)
 	/* Gracias a Gorilla podemos usar expresiones regulares para asegurarnos
 	 de antemano que los parámetros pasados cumplen con la regla que queremos.

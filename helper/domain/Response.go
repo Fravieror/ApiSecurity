@@ -2,7 +2,7 @@ package domain
 
 type Response struct {
 	Message string
-	Code    string
+	Code    int
 	Data    []byte
 	Errors  string
 }
@@ -10,6 +10,6 @@ type Response struct {
 func NewResponse() *Response {
 	return &Response{
 		Message: "Ok",
-		Code:    "200",
+		Code:    200,
 	}
 }

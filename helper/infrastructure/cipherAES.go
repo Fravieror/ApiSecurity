@@ -4,7 +4,7 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
-	"encoding/hex"
+	"fmt"
 	"io"
 )
 
@@ -12,59 +12,72 @@ import (
 type CipherAES struct{}
 
 // Encrypt cifra datos.
-func (c *CipherAES) Encrypt(toCipher string) []byte {
-	// Load your secret key from a safe place and reuse it across multiple
-	// Seal/Open calls. (Obviously don't use this example key for anything
-	// real.) If you want to convert a passphrase to a key, use a suitable
-	// package like bcrypt or scrypt.
-	// When decoded the key should be 16 bytes (AES-128) or 32 (AES-256).
-	key, _ := hex.DecodeString("$2y$12$bfvEf9ws9sZw6wCyatnxz.T203kyB2oHi135mGGGnqWGAXdVUpo6K")
-	plaintext := []byte(toCipher)
+func (cipherObject *CipherAES) Encrypt(toCipher string) string {
 
-	block, err := aes.NewCipher(key)
+	text := []byte(toCipher)
+	fmt.Println(len("eedstobe32bytes!"))
+	key := []byte("eedstobe32bytes!")
+
+	// generate a new aes cipher using our 32 byte long key
+	c, err := aes.NewCipher(key)
+	// if there are any errors, handle them
 	if err != nil {
-		panic(err.Error())
+		fmt.Println(err)
 	}
 
-	// Never use more than 2^32 random nonces with a given key because of the risk of a repeat.
-	nonce := make([]byte, 12)
-	if _, err := io.ReadFull(rand.Reader, nonce); err != nil {
-		panic(err.Error())
-	}
-
-	aesgcm, err := cipher.NewGCM(block)
+	// gcm or Galois/Counter Mode, is a mode of operation
+	// for symmetric key cryptographic block ciphers
+	// - https://en.wikipedia.org/wiki/Galois/Counter_Mode
+	gcm, err := cipher.NewGCM(c)
+	// if any error generating new GCM
+	// handle them
 	if err != nil {
-		panic(err.Error())
+		fmt.Println(err)
 	}
 
-	return aesgcm.Seal(nil, nonce, plaintext, nil)
+	// creates a new byte array the size of the nonce
+	// which must be passed to Seal
+	nonce := make([]byte, gcm.NonceSize())
+	// populates our nonce with a cryptographically secure
+	// random sequence
+	if _, err = io.ReadFull(rand.Reader, nonce); err != nil {
+		fmt.Println(err)
+	}
+
+	// here we encrypt our text using the Seal function
+	// Seal encrypts and authenticates plaintext, authenticates the
+	// additional data and appends the result to dst, returning the updated
+	// slice. The nonce must be NonceSize() bytes long and unique for all
+	// time, for a given key.
+	fmt.Println(gcm.Seal(nonce, nonce, text, nil))
+	return string(gcm.Seal(nonce, nonce, text, nil))
 }
+func Decrypt(toDecrypt string) string {
 
-// Decrypt data.
-func (c *CipherAES) Decrypt(toDecrypt string) []byte {
-	// Load your secret key from a safe place and reuse it across multiple
-	// Seal/Open calls. (Obviously don't use this example key for anything
-	// real.) If you want to convert a passphrase to a key, use a suitable
-	// package like bcrypt or scrypt.
-	// When decoded the key should be 16 bytes (AES-128) or 32 (AES-256).
-	key, _ := hex.DecodeString("$2y$12$bfvEf9ws9sZw6wCyatnxz.T203kyB2oHi135mGGGnqWGAXdVUpo6K")
-	ciphertext, _ := hex.DecodeString(toDecrypt)
-	nonce, _ := hex.DecodeString("64a9433eae7ccceee2fc0eda")
+	key := []byte("eedstobe32bytes!")
+	ciphertext := []byte(toDecrypt)
 
-	block, err := aes.NewCipher(key)
+	c, err := aes.NewCipher(key)
 	if err != nil {
-		panic(err.Error())
+		fmt.Println(err)
 	}
 
-	aesgcm, err := cipher.NewGCM(block)
+	gcm, err := cipher.NewGCM(c)
 	if err != nil {
-		panic(err.Error())
+		fmt.Println(err)
 	}
 
-	plaintext, err := aesgcm.Open(nil, nonce, ciphertext, nil)
-	if err != nil {
-		panic(err.Error())
+	nonceSize := gcm.NonceSize()
+	if len(ciphertext) < nonceSize {
+		fmt.Println(err)
 	}
 
-	return plaintext
+	nonce, ciphertext := ciphertext[:nonceSize], ciphertext[nonceSize:]
+	plaintext, err := gcm.Open(nil, nonce, ciphertext, nil)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println(string(plaintext))
+	return string(plaintext)
 }

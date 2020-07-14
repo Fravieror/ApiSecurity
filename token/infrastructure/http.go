@@ -18,10 +18,25 @@ func GenerateToken(w http.ResponseWriter, r *http.Request) {
 	response := bussines.GenerateToken(&user)
 	jsonResponse, err := json.Marshal(response)
 	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte("Error cast struct to json"))
 	}
+
+	w.WriteHeader(response.Code)
 	w.Write(jsonResponse)
 	// Try to decode the request body into the struct. If there is an error,
 	// respond to the client with the error message and a 400 status code.
 
+}
+
+func VerifyToken(w http.ResponseWriter, r *http.Request) {
+	bussines := application.NewBussines(&MySQLRepository{})
+	response := bussines.VerifyToken(r)
+	jsonResponse, err := json.Marshal(response)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("Error cast struct to json"))
+	}
+	w.WriteHeader(response.Code)
+	w.Write(jsonResponse)
 }

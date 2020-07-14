@@ -3,7 +3,11 @@ module apiSecurity
 go 1.14
 
 require (
-	github.com/auth0/go-jwt-middleware v0.0.0-20200507191422-d30d7b9ece63
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
+	github.com/go-sql-driver/mysql v1.5.0
 	github.com/gorilla/mux v1.7.4
+	github.com/joho/godotenv v.0
+	""
+	github.com/joho/godotenv v1.31.3.0
+	github.com/twinj/uuid v1.0.0
 )
