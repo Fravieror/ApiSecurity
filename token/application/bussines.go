@@ -5,7 +5,6 @@ import (
 	"apiSecurity/token/domain"
 	userDomain "apiSecurity/user/domain"
 	"encoding/json"
-	"flag"
 	"fmt"
 	"log"
 	"net/http"
@@ -20,19 +19,6 @@ import (
 type Bussines struct {
 	repository domain.Repository
 }
-
-var (
-	// Options
-	flagAlg     = flag.String("alg", "", "signing algorithm identifier")
-	flagKey     = flag.String("key", "", "path to key file or '-' to read from stdin")
-	flagCompact = flag.Bool("compact", false, "output compact JSON")
-	flagDebug   = flag.Bool("debug", false, "print out all kinds of debug data")
-
-	// Modes - exactly one of these is required
-	flagSign   = flag.String("sign", "", "path to claims object to sign, '-' to read from stdin, or '+' to use only -claim args")
-	flagVerify = flag.String("verify", "", "path to JWT token to verify or '-' to read from stdin")
-	flagShow   = flag.String("show", "", "path to JWT file or '-' to read from stdin")
-)
 
 func NewBussines(rep domain.Repository) domain.Service {
 	return &Bussines{
@@ -70,7 +56,7 @@ func (b *Bussines) GenerateToken(user *userDomain.User) *helperDomain.Response {
 }
 func CreateToken(emailUser string) (*domain.Token, error) {
 	td := &domain.Token{}
-	td.AtExpires = time.Now().Add(time.Minute * 2).Unix()
+	td.AtExpires = time.Now().Add(time.Minute * 1440).Unix()
 	td.AccessUuid = uuid.NewV4().String()
 
 	td.RtExpires = time.Now().Add(time.Hour * 24 * 7).Unix()

@@ -4,6 +4,7 @@ import (
 	"apiSecurity/server"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/joho/godotenv"
 )
@@ -15,5 +16,5 @@ func main() {
 	}
 
 	s := server.New()
-	log.Fatal(http.ListenAndServe(":8080", s.Router()))
+	log.Fatal(http.ListenAndServe(os.Getenv("PORTAPI"), s.Router()))
 }
